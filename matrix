@@ -1,0 +1,62 @@
+class SizeMismatchException(Exception):
+    def __init__(self, message="Matrix size mismatch"):
+        self.message = message
+        super().__init__(self.message)
+
+class Matrix:
+    def __init__(self, rows, cols, data=None):
+        self.rows = rows
+        self.cols = cols
+        if data:
+            if len(data) != rows:
+                raise ValueError("Number of rows in data doesn't match specified rows")
+            for row in data:
+                if len(row) != cols:
+                    raise ValueError("Number of columns in data doesn't match specified columns")
+            self.data = data
+        else:
+            self.data = [[0]*cols for _ in range(rows)]
+
+    def __add__(self, other):
+        if self.rows != other.rows or self.cols != other.cols:
+            raise SizeMismatchException("Matrix sizes don't match for addition")
+        result = Matrix(self.rows, self.cols)
+        for i in range(self.rows):
+            for j in range(self.cols):
+                result.data[i][j] = self.data[i][j] + other.data[i][j]
+        return result
+
+    def __mul__(self, other):
+        if self.cols != other.rows:
+            raise SizeMismatchException("Matrix sizes don't match for multiplication")
+        result = Matrix(self.rows, other.cols)
+        for i in range(self.rows):
+            for j in range(other.cols):
+                for k in range(self.cols):
+                    result.data[i][j] += self.data[i][k] * other.data[k][j]
+        return result
+
+    def __str__(self):
+        return '\n'.join([' '.join(map(str, row)) for row in self.data])
+
+# Example usage:
+A = Matrix(3, 2, [[1, 2], [3, 4], [5, 6]])
+B = Matrix(2, 3, [[7, 8, 9], [10, 11, 12]])
+
+print("Matrix A:")
+print(A)
+
+print("Matrix B:")
+print(B)
+
+print("A + B:")
+try:
+    print(A + B)
+except SizeMismatchException as e:
+    print(e)
+
+print("A * B:")
+try:
+    print(A * B)
+except SizeMismatchException as e:
+    print(e)
